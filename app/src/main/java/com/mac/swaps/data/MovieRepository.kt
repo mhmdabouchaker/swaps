@@ -21,8 +21,6 @@ class MovieRepository @Inject constructor(
     private val movieDao: MovieDao,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher) {
 
-    var movieList: List<Movie> = emptyList()
-
     fun fetchTrendingMovies(): Flow<Result<TrendingMovieResponse>> {
         return flow {
             emit(Result.loading())
@@ -59,9 +57,6 @@ class MovieRepository @Inject constructor(
     }
     private fun fetchTrendingMoviesCached(): Result<TrendingMovieResponse> =
         movieDao.getAll().let {
-            if (it != null) {
-                movieList = it
-            }
             Result.success(TrendingMovieResponse(it, false))
         }
 
