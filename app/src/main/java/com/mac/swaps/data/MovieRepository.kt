@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -29,8 +30,11 @@ class MovieRepository @Inject constructor(
             //Cache to database if response is successful
             if (result.data?.results != null) {
                 result.data.results.let {
-//                    movieDao.deleteAll(it)
-//                    movieDao.insertAll(it)
+                    val cachedMovieList = fetchTrendingMoviesCached().data?.results
+                    if (cachedMovieList.isNullOrEmpty()) {
+                        movieDao.deleteAll(it)
+                        movieDao.insertAll(it)
+                    }
                 }
             }
             emit(fetchTrendingMoviesCached())

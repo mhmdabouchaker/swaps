@@ -14,10 +14,6 @@ interface MovieDao {
     @Query("UPDATE movie SET isFavorite=:isFavorite WHERE  id=:id")
     fun updateFavorites(isFavorite: Boolean, id: Int)
 
-
-    @Query("SELECT * FROM movie WHERE title LIKE '%' || :query || '%' AND isFavorite  LIKE '%' || :isFavorite || '%' order by popularity DESC")
-    fun searchMovieByFavorite(query: String?, isFavorite: Boolean): List<Movie>
-
     @Query("SELECT * FROM movie WHERE isFavorite  LIKE '%' || :isFiltered || '%' order by popularity DESC")
     fun filterByFavorites(isFiltered: Boolean): List<Movie>
 
