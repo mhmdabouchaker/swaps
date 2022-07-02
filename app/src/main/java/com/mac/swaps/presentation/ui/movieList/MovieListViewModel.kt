@@ -24,8 +24,8 @@ class MovieListViewModel @Inject constructor(private val movieRepository: MovieR
         fetchMovies()
     }
 
-    private fun fetchMovies() {
-        movieRepository.fetchTrendingMovies().onEach { dataState ->
+    fun fetchMovies() {
+        movieRepository.fetchMovies().onEach { dataState ->
             loading.value = dataState.loading
 
             dataState.data?.results.let { list ->

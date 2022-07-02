@@ -1,6 +1,6 @@
 package com.mac.swaps.data.remote
 
-import com.mac.swaps.model.MovieDesc
+import com.mac.swaps.model.Movie
 import com.mac.swaps.model.TrendingMovieResponse
 import com.mac.swaps.network.services.MovieService
 import com.mac.swaps.util.ErrorUtils
@@ -19,7 +19,7 @@ class MovieRemoteDataSource @Inject constructor(private val retrofit: Retrofit) 
         )
     }
 
-    suspend fun fetchMovie(id: Int): Result<MovieDesc> {
+    suspend fun fetchMovie(id: Int): Result<Movie> {
         val movieService = retrofit.create(MovieService::class.java);
         return getResponse(
             request = { movieService.getMovie(id) },

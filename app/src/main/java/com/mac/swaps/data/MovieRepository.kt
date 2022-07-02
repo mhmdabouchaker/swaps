@@ -4,14 +4,13 @@ import com.mac.swaps.data.local.MovieDao
 import com.mac.swaps.data.remote.MovieRemoteDataSource
 import com.mac.swaps.di.IoDispatcher
 import com.mac.swaps.model.Movie
-import com.mac.swaps.model.MovieDesc
 import com.mac.swaps.model.TrendingMovieResponse
 import com.mac.swaps.model.Result
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -20,49 +19,59 @@ import javax.inject.Inject
 class MovieRepository @Inject constructor(
     private val movieRemoteDataSource: MovieRemoteDataSource,
     private val movieDao: MovieDao,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher) {
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+) {
 
-    fun fetchTrendingMovies(): Flow<Result<TrendingMovieResponse>> {
+    fun fetchMovies(): Flow<Result<TrendingMovieResponse>> {
         return flow {
             emit(Result.loading())
-            val result = movieRemoteDataSource.fetchTrendingMovies()
+            var movies = fetchTrendingMoviesCached()
+            if (movies.data != null && !movies.data?.results.isNullOrEmpty()) {
+                emit(Result.success(movies.data))
+            } else {
+                val moviesFromNetwork = movieRemoteDataSource.fetchTrendingMovies()
+                moviesFromNetwork.data?.let {
+                    it.results?.let { it1 -> movieDao.deleteAll(it1) }
+                    it.results?.let { it1 -> movieDao.insertAll(it1) }
+                }
+                movies = fetchTrendingMoviesCached()
+                emit(Result.success(movies.data))
+            }
+        }.flowOn(ioDispatcher)
+    }
 
-            //Cache to database if response is successful
-            if (result.data?.results != null) {
-                result.data.results.let {
-                    val cachedMovieList = fetchTrendingMoviesCached().data?.results
-                    if (cachedMovieList.isNullOrEmpty()) {
-                        movieDao.deleteAll(it)
-                        movieDao.insertAll(it)
-                    }
+    fun fetchMovieById(id: Int): Flow<Result<Movie>> {
+        return flow {
+            emit(Result.loading())
+            // just to show loading, cache is fast
+            delay(1000)
+            var movie = fetchMovieByIdCached(id)
+            if (movie != null) {
+                emit(Result.success(movie))
+            } else {
+                val movieFromNetwork = movieRemoteDataSource.fetchMovie(id)
+                movieFromNetwork.data?.let { movieDao.insertMovie(it) }
+
+                movie = fetchMovieByIdCached(id)
+                if (movie != null) {
+                    emit(Result.success(movie))
+                } else {
+                    throw Exception("Unable to get movie from the cache.")
                 }
             }
-            emit(fetchTrendingMoviesCached())
         }.flowOn(ioDispatcher)
     }
-
-    fun fetchMovie(id: Int): Flow<Result<MovieDesc>> {
-        return flow {
-            emit(Result.loading())
-            emit(movieRemoteDataSource.fetchMovie(id))
-        }.flowOn(ioDispatcher)
-    }
-
 
     fun filterMoviesByFavorite(isFiltered: Boolean): Flow<Result<TrendingMovieResponse>> {
         return flow {
             emit(Result.loading())
-            if (isFiltered){
+            if (isFiltered) {
                 emit(filterByFavoritesCached())
-            }else{
+            } else {
                 emit(fetchTrendingMoviesCached())
             }
         }.flowOn(ioDispatcher)
     }
-    private fun fetchTrendingMoviesCached(): Result<TrendingMovieResponse> =
-        movieDao.getAll().let {
-            Result.success(TrendingMovieResponse(it, false))
-        }
 
     fun updateFavorite(favorite: Boolean, id: Int): Flow<Result<TrendingMovieResponse>> {
         return flow {
@@ -72,7 +81,16 @@ class MovieRepository @Inject constructor(
         }.flowOn(ioDispatcher)
     }
 
-    private fun filterByFavoritesCached(): Result<TrendingMovieResponse> =
+    private suspend fun fetchTrendingMoviesCached(): Result<TrendingMovieResponse> =
+        movieDao.getAll().let {
+            Result.success(TrendingMovieResponse(it, false))
+        }
+
+    private suspend fun fetchMovieByIdCached(id: Int): Movie? {
+        return movieDao.getMovieById(id)
+    }
+
+    private suspend fun filterByFavoritesCached(): Result<TrendingMovieResponse> =
         movieDao.filterByFavorites(true).let {
             Result.success(TrendingMovieResponse(it, true))
         }

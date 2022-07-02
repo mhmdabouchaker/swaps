@@ -72,13 +72,15 @@ fun MovieDetailScreen(
                                         style = MaterialTheme.typography.h3
                                     )
                                 }
-                                Text(
-                                    text = it.overview,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 4.dp),
-                                    style = MaterialTheme.typography.body1
-                                )
+                                it.overview?.let { it1 ->
+                                    Text(
+                                        text = it1,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 4.dp),
+                                        style = MaterialTheme.typography.body1
+                                    )
+                                }
                             }
                         }
                     }
