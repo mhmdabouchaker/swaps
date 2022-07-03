@@ -8,12 +8,9 @@ import com.mac.swaps.cache.MovieDaoFake
 import com.mac.swaps.data.MovieRepository
 import com.mac.swaps.model.Movie
 import com.mac.swaps.model.Result
-import com.mac.swaps.model.TrendingMovieResponse
 import com.mac.swaps.network.data.FakeMovieResponse.movieUnFavoriteList
 import com.mac.swaps.network.data.FakeMovieResponse.movieWithoutFavorite
 import com.mac.swaps.presentation.ui.movie.MovieViewModel
-import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow

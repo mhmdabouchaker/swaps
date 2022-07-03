@@ -106,9 +106,7 @@ dependencies {
     testImplementation "org.mockito:mockito-core:$versions.mockitoVersion"
     // mock extension function
     testImplementation "io.mockk:mockk:$versions.mockkVersion"
-    testImplementation("org.mockito:mockito-inline:2.8.47")
+    testImplementation"org.mockito:mockito-inline:$versions.mockitoInlineVersion"
 
-
-    testImplementation "com.squareup.okhttp3:mockwebserver:$versions.okhttpVersion"
 
 }
