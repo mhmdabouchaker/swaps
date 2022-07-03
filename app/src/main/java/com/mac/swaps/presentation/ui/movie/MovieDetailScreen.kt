@@ -28,7 +28,7 @@ fun MovieDetailScreen(
     viewModel: MovieViewModel
 ) {
     val loading = viewModel.loading.value
-    val movieDesc = viewModel.movieDes.value
+    val movieDesc = viewModel.movie.value
     val alertPopUp = viewModel.dialogQueue
 
     AppTheme(

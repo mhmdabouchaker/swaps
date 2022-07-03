@@ -23,7 +23,7 @@ class MovieViewModel @Inject constructor(
         const val STATE_KEY_MOVIE = "movie.state.movie.key"
     }
 
-    val movieDes: MutableState<Movie?> = mutableStateOf(null)
+    val movie: MutableState<Movie?> = mutableStateOf(null)
 
     val loading = mutableStateOf(false)
 
@@ -40,7 +40,7 @@ class MovieViewModel @Inject constructor(
             loading.value = dataState.loading
 
             dataState.data?.let { data ->
-                movieDes.value = data
+                movie.value = data
                 state.set(STATE_KEY_MOVIE, data.id)
             }
 

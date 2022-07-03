@@ -14,6 +14,7 @@ import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import org.junit.Assert
 import org.junit.Before
@@ -68,9 +69,8 @@ class MovieListViewModelTest {
         launch {
             channel.send(Result.success(movieResponse))
         }
-        testCoroutineRule.pauseDispatcher()
+
         val viewModel = MovieListViewModel(repository)
-        testCoroutineRule.resumeDispatcher()
         viewModel.fetchMovies()
 
         // emission should be the list of movies
@@ -100,9 +100,8 @@ class MovieListViewModelTest {
         launch {
             channel.send(Result.success(movieResponse))
         }
-        testCoroutineRule.pauseDispatcher()
+
         val viewModel = MovieListViewModel(repository)
-        testCoroutineRule.resumeDispatcher()
         viewModel.fetchMovies()
         // emission should be the list of movies
         val movieList = viewModel.movies.value
@@ -139,9 +138,8 @@ class MovieListViewModelTest {
             channel.send(Result.success(movieResponse))
         }
 
-        testCoroutineRule.pauseDispatcher()
         val viewModel = MovieListViewModel(repository)
-        testCoroutineRule.resumeDispatcher()
+
         viewModel.onFavoriteUpdate(true, movieId)
 
         // emission should be the list of movies
@@ -179,9 +177,7 @@ class MovieListViewModelTest {
             channel.send(Result.success(movieResponse))
         }
 
-        testCoroutineRule.pauseDispatcher()
         val viewModel = MovieListViewModel(repository)
-        testCoroutineRule.resumeDispatcher()
         viewModel.onFavoriteUpdate(false, movieId)
 
         // emission should be the list of movies
